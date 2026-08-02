@@ -1,15 +1,33 @@
 const mongoose = require("mongoose");
 
-const initializeDatabase = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
+let connectionPromise = null;
 
-    console.log("✅ MongoDB Connected Successfully");
-  } catch (error) {
-    console.error("❌ MongoDB Connection Failed");
-    console.error(error.message);
-    process.exit(1);
+const initializeDatabase = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
   }
+
+  if (!connectionPromise) {
+    connectionPromise = mongoose
+      .connect(process.env.MONGODB_URI)
+      .then((conn) => {
+        console.log("✅ MongoDB Connected Successfully");
+        return conn;
+      })
+      .catch((error) => {
+        connectionPromise = null;
+        console.error("❌ MongoDB Connection Failed");
+        console.error(error.message);
+
+        if (!process.env.VERCEL) {
+          process.exit(1);
+        }
+
+        throw error;
+      });
+  }
+
+  return connectionPromise;
 };
 
 module.exports = {

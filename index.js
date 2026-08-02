@@ -46,15 +46,26 @@ app.get("/", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 4000;
-
-initializeDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Failed to start server", error);
-    process.exit(1);
+if (process.env.VERCEL) {
+  // On Vercel, the platform invokes `app` per-request — there is no
+  // long-running process to listen() on. Just make sure the DB is
+  // connected (connection is cached across warm invocations in db.js).
+  initializeDatabase().catch((error) => {
+    console.error("Failed to connect to database", error);
   });
+} else {
+  const PORT = process.env.PORT || 4000;
+
+  initializeDatabase()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error("Failed to start server", error);
+      process.exit(1);
+    });
+}
+
+module.exports = app;
