@@ -143,7 +143,19 @@ const getAllAlbums = async (req, res) => {
       $or: [{ ownerId: req.user.userId }, { sharedWith: userEmail }],
     }).sort({ createdAt: -1 });
 
-    return res.json(albums);
+    const ownerIds = [...new Set(albums.map((album) => album.ownerId))];
+    const owners = await User.find({ userId: { $in: ownerIds } }).select("userId name");
+    const ownerNameById = new Map(owners.map((owner) => [owner.userId, owner.name]));
+
+    const albumsWithOwnerName = albums.map((album) => ({
+      ...album.toObject(),
+      ownerName:
+        album.ownerId === req.user.userId
+          ? "You"
+          : ownerNameById.get(album.ownerId) || "Unknown",
+    }));
+
+    return res.json(albumsWithOwnerName);
   } catch (error) {
     console.error("getAllAlbums failed:", error);
     return res.status(500).json({ message: "Failed to fetch albums" });

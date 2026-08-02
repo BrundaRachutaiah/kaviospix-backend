@@ -35,9 +35,8 @@ const AlbumSchema = new mongoose.Schema(
   }
 );
 
-AlbumSchema.pre("save", function normalizeSharedWith(next) {
+AlbumSchema.pre("save", function normalizeSharedWith() {
   this.sharedWith = [...new Set((this.sharedWith || []).map((email) => email.toLowerCase()))];
-  next();
 });
 
 module.exports = mongoose.model("Album", AlbumSchema);

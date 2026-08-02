@@ -39,12 +39,10 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-UserSchema.pre("save", function ensureUserId(next) {
+UserSchema.pre("save", function ensureUserId() {
   if (!this.userId) {
     this.userId = uuidv4();
   }
-
-  next();
 });
 
 module.exports = mongoose.model("User", UserSchema);
