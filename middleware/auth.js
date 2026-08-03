@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const { verifyToken } = require("../utils/jwt");
-const { v4: uuidv4 } = require("uuid");
+const { randomUUID: uuidv4 } = require("crypto");
 
 const auth = async (req, res, next) => {
   try {

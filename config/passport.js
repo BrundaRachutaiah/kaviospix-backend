@@ -1,6 +1,6 @@
 const passport = require("passport");
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-const { v4: uuidv4 } = require("uuid");
+const { randomUUID: uuidv4 } = require("crypto");
 const User = require("../models/User");
 
 const clientID = process.env.GOOGLE_CLIENT_ID;
