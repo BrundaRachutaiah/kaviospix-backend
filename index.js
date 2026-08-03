@@ -19,6 +19,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
+app.get("/", (req, res) => {
+  res.json({
+    message: "Welcome to KaviosPix API",
+    endpoints: {
+      auth: "/auth/google",
+      albums: "/albums",
+    },
+  });
+});
+
 app.use("/auth", authRoutes);
 app.use("/albums", albumRoutes);
 app.use("/", imageRoutes);
@@ -34,16 +44,6 @@ app.use((err, req, res, next) => {
 
   console.error(err);
   return res.status(500).json({ message: "Internal server error" });
-});
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "Welcome to KaviosPix API",
-    endpoints: {
-      auth: "/auth/google",
-      albums: "/albums",
-    },
-  });
 });
 
 if (process.env.VERCEL) {
